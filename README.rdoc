@@ -1,6 +1,44 @@
 = rpcjson
 
-Description goes here.
+This is my implementation of JSON-RPC as detailed in the original 2007 1.1 specification found here:
+http://json-rpc.org/wiki/specification
+
+And the newer non-standardized 2.0 specification:
+http://groups.google.com/group/json-rpc/web/json-rpc-2-0
+
+I wrote this because it didn't appear that any of the JSON-RPC implementations worked anymore for modern Ruby. There were numerous errors, missing gems and nothing worked. 
+
+== Example usage
+
+Here's an example which connects to bitcoind and asks it to getinfo.
+
+  require 'rubygems'
+  require 'rpcjson'
+
+  # 1.1 is required because bitcoind does not speak 2.0
+  bc = RPC::JSON::Client.new 'http://username:password@127.0.0.1:8332', 1.1
+  
+  # JSON-RPC error objects are raised as Ruby objects of the type
+  # RPC::JSON::Client::Error. The original object is available at
+  # e.error
+
+  begin
+
+    # First get server info
+    puts "Getting server information..."
+    info = bc.getinfo
+    info.each_key do |key|
+      puts "#{key}: #{info[key]}"
+    end
+
+    # Will raise error
+    puts "Shutting down the server..."
+    bc.st0p
+  rescue RPC::JSON::Client::Error => e
+    puts "Got an error: #{e}: #{e.error.to_json}"
+  end
+
+This software has been tested on Ruby EE 2010.02. Let me know how it works elsewhere.
 
 == Contributing to rpcjson
  
@@ -11,6 +49,15 @@ Description goes here.
 * Commit and push until you are happy with your contribution
 * Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
 * Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+
+== Donations
+
+I wrote this mainly to provide support in Ruby for Bitcoin. If you happen to have a bitcoin account and you feel like supporting this project - please send a few coins my way.
+
+Receiving address: 14SjyYcHakwmqu8QQYh6emjy47fW8rhUKk
+
+If you haven't heard about Bitcoin, well, check out the system that makes PayPal obsolete.
+http://www.bitcoin.org
 
 == Copyright
 
