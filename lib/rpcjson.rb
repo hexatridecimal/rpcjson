@@ -46,7 +46,7 @@ class RPC
         # puts "Sending: #{body}"
 
         http = Net::HTTP.new(@uri.host, @uri.port)
-        request = Net::HTTP::Get.new(@uri.request_uri)
+        request = Net::HTTP::Post.new(@uri.request_uri)
         if @uri.user != nil
           request.basic_auth(@uri.user, @uri.password)
         end
