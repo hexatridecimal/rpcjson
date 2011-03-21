@@ -2,8 +2,8 @@ require 'net/http'
 require 'uri'
 require 'json'
 
-class RPC
-  class JSON
+module RPC
+  module JSON
     class Client
       class Error < RuntimeError
         attr_accessor :error
