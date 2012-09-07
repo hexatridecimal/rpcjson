@@ -16,7 +16,23 @@ class RPC
         @id = 1
         @uri = URI.parse(url)
         @version = version
-        @http = Net::HTTP.new(@uri.host, @uri.port)
+        @connections = 0
+        @http = Net::HTTP.start(@uri.host, @uri.port)
+      end
+
+      def make_request(body)
+        @connections += 1
+        if @connections > 2000
+          @http.finish
+          @http = Net::HTTP.start(@uri.host, @uri.port)
+        end
+        request = Net::HTTP::Post.new(@uri.request_uri)
+	if @uri.user != nil
+          request.basic_auth(@uri.user, @uri.password)
+	end
+	request.body = body
+	response = @http.request(request)
+        JSON( response.body )
       end
 
       def method_missing(func, *args)
@@ -48,14 +64,11 @@ class RPC
 
         answer = nil
 
-        request = Net::HTTP::Post.new(@uri.request_uri)
-	if @uri.user != nil
-          request.basic_auth(@uri.user, @uri.password)
-	end
-	request.body = body
-	response = @http.request(request)
-        answer = JSON( response.body )
-
+        begin 
+          answer = self.make_request( body )
+        rescue Timeout::Error
+          answer = self.make_request( body )
+        end
         # 1.0/1.1
         # jsonrpc: NOT INCLUDED
         # 2.0 
