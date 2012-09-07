@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{rpcjson}
-  s.version = "0.0.2"
+  s.version = "0.0.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jonathan Jeffus"]
-  s.date = %q{2011-02-28}
+  s.date = %q{2012-07-07}
   s.description = %q{This module aims to be a complete implementation of JSON-RPC 1.1 and 2.0.}
   s.email = %q{jjeffus@gmail.com}
   s.extra_rdoc_files = [

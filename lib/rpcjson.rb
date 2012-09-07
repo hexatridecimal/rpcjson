@@ -16,6 +16,7 @@ class RPC
         @id = 1
         @uri = URI.parse(url)
         @version = version
+        @http = Net::HTTP.new(@uri.host, @uri.port)
       end
 
       def method_missing(func, *args)
@@ -46,15 +47,14 @@ class RPC
         # puts "Sending: #{body}"
 
         answer = nil
-        Net::HTTP.start(@uri.host, @uri.port) do |http|
-          request = Net::HTTP::Post.new(@uri.request_uri)
-          if @uri.user != nil
-            request.basic_auth(@uri.user, @uri.password)
-          end
-          request.body = body
-          response = http.request(request)
-          answer = JSON( response.body )
-        end
+
+        request = Net::HTTP::Post.new(@uri.request_uri)
+	if @uri.user != nil
+          request.basic_auth(@uri.user, @uri.password)
+	end
+	request.body = body
+	response = @http.request(request)
+        answer = JSON( response.body )
 
         # 1.0/1.1
         # jsonrpc: NOT INCLUDED
