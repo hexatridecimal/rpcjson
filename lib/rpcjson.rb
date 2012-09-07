@@ -45,16 +45,16 @@ class RPC
         body = JSON(json)
         # puts "Sending: #{body}"
 
-        http = Net::HTTP.new(@uri.host, @uri.port)
-        request = Net::HTTP::Post.new(@uri.request_uri)
-        if @uri.user != nil
-          request.basic_auth(@uri.user, @uri.password)
+        answer = nil
+        Net::HTTP.start(@uri.host, @uri.port) do |http|
+          request = Net::HTTP::Post.new(@uri.request_uri)
+          if @uri.user != nil
+            request.basic_auth(@uri.user, @uri.password)
+          end
+          request.body = body
+          response = http.request(request)
+          answer = JSON( response.body )
         end
-        request.body = body
-        response = http.request(request)
-        answer = JSON( response.body )
-
-        # p answer 
 
         # 1.0/1.1
         # jsonrpc: NOT INCLUDED
