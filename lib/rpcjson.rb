@@ -26,12 +26,13 @@ class RPC
           @http.finish
           @http = Net::HTTP.start(@uri.host, @uri.port)
         end
-        request = Net::HTTP::Post.new(@uri.request_uri)
-	if @uri.user != nil
+        request = Net::HTTP::Post.new(@uri.request_uri,
+                                      {'Content-Type' => 'application/json'})
+        if @uri.user != nil
           request.basic_auth(@uri.user, @uri.password)
-	end
-	request.body = body
-	response = @http.request(request)
+        end
+        request.body = body
+        response = @http.request(request)
         JSON( response.body )
       end
 
