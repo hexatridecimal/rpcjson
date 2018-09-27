@@ -56,7 +56,11 @@ class RPC
 
         # params are expected always in 1.0/1.1. Not required in 2.0.
         if @version < 2.0 or (args != nil and args.length != 0)
-          json['params'] = args[0]
+          if args[0].is_a?(Hash) and args.length == 1
+            json['params'] = args[0]
+          else
+            json['params'] = args[]
+          end
         end
 
         body = JSON(json)
