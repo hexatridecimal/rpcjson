@@ -17,7 +17,7 @@ class RPC
         @uri = URI.parse(url)
         @version = version
         @connections = 0
-        @http = Net::HTTP.start(@uri.host, @uri.port)
+        @http = Net::HTTP.start(@uri.host, @uri.port, :use_ssl => (@uri.scheme == 'https'))
       end
 
       def make_request(body)
@@ -38,7 +38,7 @@ class RPC
       def method_missing(func, *args)
         json = {
           # jsonrpc
-          # A String specifying the version of the JSON-RPC protocol. MUST be exactly "2.0". 
+          # A String specifying the version of the JSON-RPC protocol. MUST be exactly "2.0".
           'jsonrpc' => @version.to_s,
           # method
           # A String containing the name of the method to be invoked.
@@ -49,14 +49,18 @@ class RPC
         }
 
         # 1.0/1.1:
-        # params - An Array of objects to pass as arguments to the method. 
+        # params - An Array of objects to pass as arguments to the method.
         # 2.0:
         # params
         # A Structured value that holds the parameter values to be used during the invocation of the method. This member MAY be omitted.
 
         # params are expected always in 1.0/1.1. Not required in 2.0.
         if @version < 2.0 or (args != nil and args.length != 0)
-          json['params'] = args
+          if args[0].is_a?(Hash) and args.length == 1
+            json['params'] = args[0]
+          else
+            json['params'] = args[]
+          end
         end
 
         body = JSON(json)
@@ -64,15 +68,15 @@ class RPC
 
         answer = nil
 
-        begin 
+        begin
           answer = self.make_request( body )
         rescue Timeout::Error
           answer = self.make_request( body )
         end
         # 1.0/1.1
         # jsonrpc: NOT INCLUDED
-        # 2.0 
-        # jsonrpc: 
+        # 2.0
+        # jsonrpc:
         # A String specifying the version of the JSON-RPC protocol. MUST be exactly "2.0".
         if answer['jsonrpc'] == nil
           if @version >= 2.0
@@ -87,7 +91,7 @@ class RPC
         end
 
         # 1.0/1.1
-        # error - An Error object if there was an error invoking the method. It must be null if there was no error. 
+        # error - An Error object if there was an error invoking the method. It must be null if there was no error.
         # 2.0
         # error
         # This member is REQUIRED on error.
@@ -108,12 +112,12 @@ class RPC
         @id += 1
 
         # 1.0
-        # result - The Object that was returned by the invoked method. This must be null in case there was an error invoking the method. 
+        # result - The Object that was returned by the invoked method. This must be null in case there was an error invoking the method.
         # 2.0
         # result
         # This member is REQUIRED on success.
         # This member MUST NOT exist if there was an error invoking the method.
-        # The value of this member is determined by the method invoked on the Server. 
+        # The value of this member is determined by the method invoked on the Server.
         return answer['result']
       end
     end
